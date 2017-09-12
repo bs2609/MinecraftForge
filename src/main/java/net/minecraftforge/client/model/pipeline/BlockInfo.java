@@ -88,13 +88,14 @@ public class BlockInfo
         shx = shy = shz = 0;
     }
 
-    private float combine(int c, int s1, int s2, int s3)
+    private float combine(int c, int s1, int s2, int s3, boolean t1, boolean t2)
     {
-        if(c == 0) c = Math.max(0, Math.max(s1, s2) - 1);
-        if(s1 == 0) s1 = Math.max(0, c - 1);
-        if(s2 == 0) s2 = Math.max(0, c - 1);
-        if(s3 == 0) s3 = Math.max(0, Math.max(s1, s2) - 1);
-        return (float)(c + s1 + s2 + s3) * 0x20 / (4 * 0xFFFF);
+        if (c  == 0) c  = Math.max(0, Math.max(t1 ? s1 : 0, t2 ? s2 : 0) - 1);
+        if (s1 == 0) s1 = Math.max(0, c - 1);
+        if (s2 == 0) s2 = Math.max(0, c - 1);
+        if (s3 == 0) s3 = Math.max(0, Math.max(t1 ? s1 : 0, t2 ? s2 : 0) - 1);
+
+        return (float) (c + s1 + s2 + s3) * 0x20 / (4 * 0xFFFF);
     }
 
     public void updateLightMatrix()
@@ -142,17 +143,17 @@ public class BlockInfo
                     int y1 = y * 2;
                     int z1 = z * 2;
 
-                    boolean tx = translucent[x1][1][z1] || translucent[x1][y1][1];
-                    skyLight[0][x][y][z] = combine(s[x1][1][1], s[x1][1][z1], s[x1][y1][1], tx ? s[x1][y1][z1] : s[x1][1][1]);
-                    blockLight[0][x][y][z] = combine(b[x1][1][1], b[x1][1][z1], b[x1][y1][1], tx ? b[x1][y1][z1] : b[x1][1][1]);
+                    boolean txz = translucent[x1][1][z1], txy = translucent[x1][y1][1], tx = txz || txy;
+                    skyLight  [0][x][y][z] = combine(s[x1][1][1], s[x1][1][z1], s[x1][y1][1], tx ? s[x1][y1][z1] : s[x1][1][1], txz, txy);
+                    blockLight[0][x][y][z] = combine(b[x1][1][1], b[x1][1][z1], b[x1][y1][1], tx ? b[x1][y1][z1] : b[x1][1][1], txz, txy);
 
-                    boolean ty = translucent[x1][y1][1] || translucent[1][y1][z1];
-                    skyLight[1][x][y][z] = combine(s[1][y1][1], s[x1][y1][1], s[1][y1][z1], ty ? s[x1][y1][z1] : s[1][y1][1]);
-                    blockLight[1][x][y][z] = combine(b[1][y1][1], b[x1][y1][1], b[1][y1][z1], ty ? b[x1][y1][z1] : b[1][y1][1]);
+                    boolean tyx = translucent[x1][y1][1], tyz = translucent[1][y1][z1], ty = tyx || tyz;
+                    skyLight  [1][x][y][z] = combine(s[1][y1][1], s[x1][y1][1], s[1][y1][z1], ty ? s[x1][y1][z1] : s[1][y1][1], tyx, tyz);
+                    blockLight[1][x][y][z] = combine(b[1][y1][1], b[x1][y1][1], b[1][y1][z1], ty ? b[x1][y1][z1] : b[1][y1][1], tyx, tyz);
 
-                    boolean tz = translucent[1][y1][z1] || translucent[x1][1][z1];
-                    skyLight[2][x][y][z] = combine(s[1][1][z1], s[1][y1][z1], s[x1][1][z1], tz ? s[x1][y1][z1] : s[1][1][z1]);
-                    blockLight[2][x][y][z] = combine(b[1][1][z1], b[1][y1][z1], b[x1][1][z1], tz ? b[x1][y1][z1] : b[1][1][z1]);
+                    boolean tzy = translucent[1][y1][z1], tzx = translucent[x1][1][z1], tz = tzy || tzx;
+                    skyLight  [2][x][y][z] = combine(s[1][1][z1], s[1][y1][z1], s[x1][1][z1], tz ? s[x1][y1][z1] : s[1][1][z1], tzy, tzx);
+                    blockLight[2][x][y][z] = combine(b[1][1][z1], b[1][y1][z1], b[x1][1][z1], tz ? b[x1][y1][z1] : b[1][1][z1], tzy, tzx);
                 }
             }
         }
