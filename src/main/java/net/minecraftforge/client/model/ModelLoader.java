@@ -107,7 +107,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import com.google.common.base.Predicate;
 import com.google.common.cache.CacheBuilder;
