@@ -25,20 +25,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.Validate;
 
-import java.util.Set;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -213,6 +212,12 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
     public Set<Entry<ResourceLocation, V>> getEntries()
     {
         return Collections.unmodifiableSet(this.names.entrySet());
+    }
+
+    @Override
+    public Stream<V> stream()
+    {
+        return IForgeRegistryInternal.super.stream().filter(v -> !isDummied(v.getRegistryName()));
     }
 
     @SuppressWarnings("unchecked")

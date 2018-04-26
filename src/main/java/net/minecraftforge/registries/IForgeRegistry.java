@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import net.minecraft.util.ResourceLocation;
 
@@ -57,6 +59,8 @@ public interface IForgeRegistry<V extends IForgeRegistryEntry<V>> extends Iterab
         return getValues();
     }
     @Nonnull Set<Entry<ResourceLocation, V>> getEntries();
+
+    default Stream<V> stream() { return StreamSupport.stream(spliterator(), false); }
 
     /**
      * Retrieve the slave map of type T from the registry.

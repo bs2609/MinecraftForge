@@ -220,7 +220,7 @@ public final class ModelLoader extends ModelBakery
     @Override
     protected void loadBlocks()
     {
-        List<Block> blocks = StreamSupport.stream(Block.REGISTRY.spliterator(), false)
+        List<Block> blocks = ForgeRegistries.BLOCKS.stream()
                 .filter(block -> block.getRegistryName() != null)
                 .sorted(Comparator.comparing(b -> b.getRegistryName().toString()))
                 .collect(Collectors.toList());
@@ -294,7 +294,7 @@ public final class ModelLoader extends ModelBakery
 
         registerVariantNames();
 
-        List<Item> items = StreamSupport.stream(Item.REGISTRY.spliterator(), false)
+        List<Item> items = ForgeRegistries.ITEMS.stream()
                 .filter(item -> item.getRegistryName() != null)
                 .sorted(Comparator.comparing(i -> i.getRegistryName().toString()))
                 .collect(Collectors.toList());
