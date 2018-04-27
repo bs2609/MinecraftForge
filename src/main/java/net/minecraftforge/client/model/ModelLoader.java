@@ -97,6 +97,7 @@ import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.GameData;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.IRegistryDelegate;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -221,7 +222,7 @@ public final class ModelLoader extends ModelBakery
     {
         List<Block> blocks = ForgeRegistries.BLOCKS.stream()
                 .filter(block -> block.getRegistryName() != null)
-                .sorted(Comparator.comparing(b -> b.getRegistryName().toString()))
+                .sorted(Comparator.comparing(IForgeRegistryEntry::getRegistryName))
                 .collect(Collectors.toList());
         ProgressBar blockBar = ProgressManager.push("ModelLoader: blocks", blocks.size());
 
@@ -295,7 +296,7 @@ public final class ModelLoader extends ModelBakery
 
         List<Item> items = ForgeRegistries.ITEMS.stream()
                 .filter(item -> item.getRegistryName() != null)
-                .sorted(Comparator.comparing(i -> i.getRegistryName().toString()))
+                .sorted(Comparator.comparing(IForgeRegistryEntry::getRegistryName))
                 .collect(Collectors.toList());
 
         ProgressBar itemBar = ProgressManager.push("ModelLoader: items", items.size());
