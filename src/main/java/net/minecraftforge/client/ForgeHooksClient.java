@@ -27,6 +27,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,7 +56,9 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -71,6 +75,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
@@ -120,6 +125,7 @@ import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.model.ModelDynBucket;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.animation.Animation;
+import net.minecraftforge.client.model.pipeline.QuadGatheringTransformer;
 import net.minecraftforge.client.resource.IResourceType;
 import net.minecraftforge.client.resource.SelectiveReloadStateHandler;
 import net.minecraftforge.client.resource.VanillaResourceType;
@@ -577,6 +583,128 @@ public class ForgeHooksClient
     public static void registerTESRItemStack(Item item, int metadata, Class<? extends TileEntity> TileClass)
     {
         tileItemMap.put(Pair.of(item, metadata), TileClass);
+    }
+
+    private static final class LightGatheringTransformer extends QuadGatheringTransformer
+    {
+        private static final VertexFormat FORMAT = new VertexFormat().addElement(DefaultVertexFormats.TEX_2F).addElement(DefaultVertexFormats.TEX_2S);
+
+        int blockLight, skyLight;
+
+        { setVertexFormat(FORMAT); }
+
+        boolean hasLighting() { return dataLength[1] >= 2; }
+
+        @Override
+        public void setTexture(TextureAtlasSprite texture) {}
+
+        @Override
+        public void setQuadTint(int tint) {}
+
+        @Override
+        public void setQuadOrientation(EnumFacing orientation) {}
+
+        @Override
+        public void setApplyDiffuseLighting(boolean diffuse) {}
+
+        @Override
+        protected void processQuad()
+        {
+            int totalBlockLight = 0, totalSkyLight = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                totalBlockLight += (int) ((quadData[1][i][0] * 0xFFFF) / 0x20);
+                totalSkyLight   += (int) ((quadData[1][i][1] * 0xFFFF) / 0x20);
+            }
+            blockLight = totalBlockLight * 4;
+            skyLight = totalSkyLight * 4;
+        }
+    }
+
+    private static final LightGatheringTransformer lightGatherer = new LightGatheringTransformer();
+
+    public static void renderLitItem(RenderItem ri, IBakedModel model, int color, ItemStack stack)
+    {
+        List<BakedQuad> allQuads = new ArrayList<>();
+
+        for (EnumFacing enumfacing : EnumFacing.values())
+        {
+            allQuads.addAll(model.getQuads(null, enumfacing, 0));
+        }
+
+        allQuads.addAll(model.getQuads(null, null, 0));
+
+        // Current list of consecutive quads with the same lighting
+        List<BakedQuad> segment = new ArrayList<>();
+
+        // Lighting of the current segment
+        int segmentBlockLight = -1, segmentSkyLight = -1;
+
+        for (int i = 0; i < allQuads.size(); i++)
+        {
+            BakedQuad quad = allQuads.get(i);
+
+            // Light value of current quad
+            int blockLight = 0, skyLight = 0;
+
+            // Fail-fast on ITEM, as it cannot have light data
+            // Otherwise, inspect the format for UV1 (lightmap)
+            if (quad.getFormat() != DefaultVertexFormats.ITEM && quad.getFormat().hasUvOffset(1))
+            {
+                quad.pipe(lightGatherer);
+                if (lightGatherer.hasLighting())
+                {
+                    blockLight = lightGatherer.blockLight;
+                    skyLight = lightGatherer.skyLight;
+                }
+            }
+
+            // If this is a new light value, draw the segment and flush it
+            if (segmentBlockLight != blockLight || segmentSkyLight != skyLight)
+            {
+                if (i > 0) // Make sure this isn't the first quad being processed
+                {
+                    drawSegment(ri, color, stack, segment, segmentBlockLight, segmentSkyLight, segment.size() < i || segmentBlockLight > 0 || segmentSkyLight > 0);
+                }
+                segmentBlockLight = blockLight;
+                segmentSkyLight = skyLight;
+            }
+
+            segment.add(quad);
+        }
+
+        drawSegment(ri, color, stack, segment, segmentBlockLight, segmentSkyLight, segment.size() < allQuads.size() || segmentBlockLight > 0 || segmentSkyLight > 0);
+
+        // Clean up render state if necessary
+        if (segmentBlockLight > 0 || segmentSkyLight > 0)
+        {
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, OpenGlHelper.lastBrightnessX, OpenGlHelper.lastBrightnessY);
+            GL11.glMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_EMISSION, RenderHelper.setColorBuffer(0, 0, 0, 1));
+        }
+    }
+
+    private static void drawSegment(RenderItem ri, int color, ItemStack stack, List<BakedQuad> segment, int bl, int sl, boolean updateLighting)
+    {
+        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+
+        final float lastBl = OpenGlHelper.lastBrightnessX, lastSl = OpenGlHelper.lastBrightnessY;
+
+        if (updateLighting)
+        {
+            final float emissive = sl / 240f;
+            GL11.glMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_EMISSION, RenderHelper.setColorBuffer(emissive, emissive, emissive, 1));
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, Math.max(bl, lastBl), Math.max(sl, lastSl));
+        }
+
+        ri.renderQuads(bufferbuilder, segment, color, stack);
+        Tessellator.getInstance().draw();
+
+        // Preserve this as it represents the "world" lighting
+        OpenGlHelper.lastBrightnessX = lastBl;
+        OpenGlHelper.lastBrightnessY = lastSl;
+
+        segment.clear();
     }
 
     /**
