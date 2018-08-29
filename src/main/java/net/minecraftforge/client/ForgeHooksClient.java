@@ -635,6 +635,8 @@ public class ForgeHooksClient
 
         allQuads.addAll(model.getQuads(null, null, 0L));
 
+        if (allQuads.isEmpty()) return;
+
         // Current list of consecutive quads with the same lighting
         List<BakedQuad> segment = new ArrayList<>();
 
@@ -646,7 +648,9 @@ public class ForgeHooksClient
         // If the current segment contains lighting data
         boolean hasLighting = false;
 
-        int prevTintIndex = -1, prevColorMultiplier = color;
+        boolean canTint = color == -1 && !stack.isEmpty();
+
+        int prevTintIndex = -1;
 
         for (int i = 0; i < allQuads.size(); i++)
         {
@@ -655,9 +659,10 @@ public class ForgeHooksClient
             // Light values of current quad
             int blockLight = 0, skyLight = 0;
 
+            VertexFormat format = quad.getFormat();
             // Fail-fast on ITEM, as it shouldn't have light data
             // Otherwise, inspect the format for lightmap element
-            if (quad.getFormat() != DefaultVertexFormats.ITEM && quad.getFormat().hasUvOffset(1))
+            if (format != DefaultVertexFormats.ITEM && format.hasUvOffset(1))
             {
                 quad.pipe(lightGatherer);
                 if (lightGatherer.hasLighting())
@@ -667,13 +672,24 @@ public class ForgeHooksClient
                 }
             }
 
-            int tintIndex = quad.hasTintIndex() ? quad.getTintIndex() : -1;
-            int colorMultiplier = prevColorMultiplier;
+            int colorMultiplier = segmentColorMultiplier;
 
-            if (prevTintIndex != tintIndex)
+            if (canTint)
             {
-                prevTintIndex = tintIndex;
-                prevColorMultiplier = colorMultiplier = getColorMultiplier(color, stack, tintIndex);
+                if (quad.hasTintIndex())
+                {
+                    int tintIndex = quad.getTintIndex();
+                    if (prevTintIndex != tintIndex)
+                    {
+                        prevTintIndex = tintIndex;
+                        colorMultiplier = getColorMultiplier(stack, tintIndex);
+                    }
+                }
+                else
+                {
+                    prevTintIndex = -1;
+                    colorMultiplier = color;
+                }
             }
 
             boolean lightingDirty = segmentBlockLight != blockLight || segmentSkyLight != skyLight;
@@ -741,10 +757,8 @@ public class ForgeHooksClient
         segment.clear();
     }
 
-    private static int getColorMultiplier(int baseColor, ItemStack stack, int tintIndex)
+    private static int getColorMultiplier(ItemStack stack, int tintIndex)
     {
-        if (baseColor != -1 || tintIndex == -1 || stack.isEmpty()) return baseColor;
-
         int colorMultiplier = Minecraft.getMinecraft().getItemColors().colorMultiplier(stack, tintIndex);
 
         if (EntityRenderer.anaglyphEnable)
