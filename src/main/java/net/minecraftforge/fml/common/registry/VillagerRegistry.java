@@ -143,6 +143,8 @@ public class VillagerRegistry
             return;
         }
 
+        hasInit = true;
+
         VillagerProfession prof = new VillagerProfession("minecraft:farmer",
                 "minecraft:textures/entity/villager/farmer.png",
                 "minecraft:textures/entity/zombie_villager/zombie_farmer.png");
@@ -227,6 +229,21 @@ public class VillagerRegistry
                     return car;
             }
             return this.careers.get(0);
+        }
+
+        public VillagerCareer getCareer(String name)
+        {
+            for (VillagerCareer car : this.careers)
+            {
+                if (car.name.equals(name))
+                    return car;
+            }
+            return this.careers.get(0);
+        }
+
+        public List<VillagerCareer> getCareers()
+        {
+            return Collections.unmodifiableList(this.careers);
         }
 
         public int getRandomCareer(Random rand)
