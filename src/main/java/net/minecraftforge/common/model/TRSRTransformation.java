@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,8 +35,8 @@ import javax.vecmath.Tuple4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
-import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
-import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.model.ItemTransformVec3f;
+import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.api.distmarker.Dist;
@@ -536,7 +536,7 @@ public final class TRSRTransformation implements IModelState, ITransformation
      */
     @Deprecated
     @OnlyIn(Dist.CLIENT)
-    public net.minecraft.client.renderer.block.model.ItemTransformVec3f toItemTransform()
+    public net.minecraft.client.renderer.model.ItemTransformVec3f toItemTransform()
     {
         return new ItemTransformVec3f(toMojang(toXYZDegrees(getLeftRot())), toMojang(getTranslation()), toMojang(getScale()));
     }

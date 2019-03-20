@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.client.event;
 
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.WorldRenderer;
 
 /**
  * This event is fired on {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}
@@ -33,15 +33,15 @@ import net.minecraft.client.renderer.RenderGlobal;
 @net.minecraftforge.eventbus.api.Cancelable
 public class RenderHandEvent extends net.minecraftforge.eventbus.api.Event
 {
-    private final RenderGlobal context;
+    private final WorldRenderer context;
     private final float partialTicks;
-    public RenderHandEvent(RenderGlobal context, float partialTicks)
+    public RenderHandEvent(WorldRenderer context, float partialTicks)
     {
         this.context = context;
         this.partialTicks = partialTicks;
     }
 
-    public RenderGlobal getContext()
+    public WorldRenderer getContext()
     {
         return context;
     }

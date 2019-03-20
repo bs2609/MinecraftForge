@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,7 @@ public class LoadingModList
     private final Map<String, ModFileInfo> fileById;
     private BackgroundScanHandler scanner;
     private final List<EarlyLoadingException> preLoadErrors;
+    private List<ModFile> brokenFiles;
 
     private LoadingModList(final List<ModFile> modFiles, final List<ModInfo> sortedList)
     {
@@ -104,8 +105,11 @@ public class LoadingModList
         return null;
     }
 
-    public URL findURLForResource(final String resourceName) {
+    public URL findURLForResource(String resourceName) {
         for (ModFileInfo mf : modFiles) {
+            // strip a leading slash
+            if (resourceName.startsWith("/")) resourceName = resourceName.substring(1);
+
             final Path resource = mf.getFile().findResource(resourceName);
             if (Files.exists(resource)) {
                 try {
@@ -130,5 +134,13 @@ public class LoadingModList
 
     public List<EarlyLoadingException> getErrors() {
         return preLoadErrors;
+    }
+
+    public void setBrokenFiles(final List<ModFile> brokenFiles) {
+        this.brokenFiles = brokenFiles;
+    }
+
+    public List<ModFile> getBrokenFiles() {
+        return this.brokenFiles;
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,8 +20,6 @@
 package net.minecraftforge.fml;
 
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.lifecycle.ModLifecycleEvent;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.forgespi.language.ILifecycleEvent;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,7 +95,7 @@ public class FMLJavaModLanguageProvider implements IModLanguageProvider
                     .filter(ad -> ad.getAnnotationType().equals(MODANNOTATION))
                     .peek(ad -> LOGGER.debug(SCAN, "Found @Mod class {} with id {}", ad.getClassType().getClassName(), ad.getAnnotationData().get("value")))
                     .map(ad -> new FMLModTarget(ad.getClassType().getClassName(), (String)ad.getAnnotationData().get("value")))
-                    .collect(Collectors.toMap(FMLModTarget::getModId, Function.identity()));
+                    .collect(Collectors.toMap(FMLModTarget::getModId, Function.identity(), (a,b)->a));
             scanResult.addLanguageLoader(modTargetMap);
         };
     }

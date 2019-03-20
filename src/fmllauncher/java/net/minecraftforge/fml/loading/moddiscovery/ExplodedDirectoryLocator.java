@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -116,5 +116,10 @@ public class ExplodedDirectoryLocator implements IModLocator {
         if (explodedTargets != null && !explodedTargets.isEmpty()) {
             rootDirs.addAll(explodedTargets);
         }
+    }
+
+    @Override
+    public boolean isValid(final ModFile modFile) {
+        return mods.get(modFile) != null;
     }
 }

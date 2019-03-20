@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,13 +28,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
-import net.minecraftforge.fml.ModThreadContext;
+import javax.annotation.Nullable;
+
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.AdvancedLogMessageAdapter;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
@@ -45,9 +46,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.MissingMappings;
@@ -188,6 +191,12 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
     }
 
     @Override
+    public boolean isEmpty()
+    {
+        return this.names.isEmpty();
+    }
+
+    @Override
     public V getValue(ResourceLocation key)
     {
         V ret = this.names.get(key);
@@ -273,6 +282,12 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
             Validate.notNull(this.defaultValue, "Missing default of ForgeRegistry: " + this.defaultKey + " Type: " + this.superType);
     }
 
+    @Nullable
+    public ResourceLocation getDefaultKey()
+    {
+        return this.defaultKey;
+    }
+
     ForgeRegistry<V> copy(RegistryManager stage)
     {
         return new ForgeRegistry<>(stage, name, builder);
@@ -280,7 +295,7 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
 
     int add(int id, V value)
     {
-        final String owner = ModThreadContext.get().getActiveContainer().getNamespace();
+        final String owner = ModLoadingContext.get().getActiveContainer().getNamespace();
         return add(id, value, owner);
     }
 
@@ -359,7 +374,7 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
         return idToUse;
     }
 
-    private V getRaw(ResourceLocation key)
+    public V getRaw(ResourceLocation key)
     {
         V ret = this.names.get(key);
         key = this.aliases.get(key);
@@ -786,18 +801,19 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
 
     public static class Snapshot
     {
-        public final Map<ResourceLocation, Integer> ids = Maps.newHashMap();
-        public final Map<ResourceLocation, ResourceLocation> aliases = Maps.newHashMap();
-        public final Set<Integer> blocked = Sets.newHashSet();
-        public final Set<ResourceLocation> dummied = Sets.newHashSet();
-        public final Map<ResourceLocation, String> overrides = Maps.newHashMap();
+        public final Map<ResourceLocation, Integer> ids = Maps.newTreeMap();
+        public final Map<ResourceLocation, ResourceLocation> aliases = Maps.newTreeMap();
+        public final Set<Integer> blocked = Sets.newTreeSet();
+        public final Set<ResourceLocation> dummied = Sets.newTreeSet();
+        public final Map<ResourceLocation, String> overrides = Maps.newTreeMap();
+        private PacketBuffer binary = null;
 
         public NBTTagCompound write()
         {
             NBTTagCompound data = new NBTTagCompound();
 
             NBTTagList ids = new NBTTagList();
-            this.ids.entrySet().stream().sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey())).forEach(e ->
+            this.ids.entrySet().stream().forEach(e ->
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setString("K", e.getKey().toString());
@@ -807,7 +823,7 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
             data.setTag("ids", ids);
 
             NBTTagList aliases = new NBTTagList();
-            this.aliases.entrySet().stream().sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey())).forEach(e ->
+            this.aliases.entrySet().stream().forEach(e ->
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setString("K", e.getKey().toString());
@@ -817,7 +833,7 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
             data.setTag("aliases", aliases);
 
             NBTTagList overrides = new NBTTagList();
-            this.overrides.entrySet().stream().sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey())).forEach(e ->
+            this.overrides.entrySet().stream().forEach(e ->
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 tag.setString("K", e.getKey().toString());
@@ -871,11 +887,73 @@ public class ForgeRegistry<V extends IForgeRegistryEntry<V>> implements IForgeRe
                 ret.blocked.add(i);
             }
 
-            list = nbt.getList("dummied", 10); //10 - NBTTagCompound, Old format. New format is String list. For now we will just merge the old and new. TODO: Remove in 1.13
-            list.forEach(e -> ret.dummied.add(new ResourceLocation(((NBTTagCompound)e).getString("K"))));
-
-            list = nbt.getList("dummied", 8); //8 - NBTTagString, New format, less redundant/verbose
+            list = nbt.getList("dummied", 8);
             list.forEach(e -> ret.dummied.add(new ResourceLocation(((NBTTagString)e).getString())));
+
+            return ret;
+        }
+
+        public synchronized PacketBuffer getPacketData()
+        {
+            if (binary == null) {
+                PacketBuffer pkt = new PacketBuffer(Unpooled.buffer());
+
+                pkt.writeVarInt(this.ids.size());
+                this.ids.forEach((k,v) -> {
+                    pkt.writeResourceLocation(k);
+                    pkt.writeVarInt(v);
+                });
+
+                pkt.writeVarInt(this.aliases.size());
+                this.aliases.forEach((k, v) -> {
+                    pkt.writeResourceLocation(k);
+                    pkt.writeResourceLocation(v);
+                });
+
+                pkt.writeVarInt(this.overrides.size());
+                this.overrides.forEach((k, v) -> {
+                    pkt.writeResourceLocation(k);
+                    pkt.writeString(v, 0x100);
+                });
+
+                pkt.writeVarInt(this.blocked.size());
+                this.blocked.forEach(pkt::writeVarInt);
+
+                pkt.writeVarInt(this.dummied.size());
+                this.dummied.forEach(pkt::writeResourceLocation);
+
+                this.binary = pkt;
+            }
+
+            return new PacketBuffer(binary.slice());
+        }
+
+        public static Snapshot read(PacketBuffer buff)
+        {
+            if (buff == null)
+                return new Snapshot();
+
+            Snapshot ret = new Snapshot();
+
+            int len = buff.readVarInt();
+            for (int x = 0; x < len; x++)
+                ret.ids.put(buff.readResourceLocation(), buff.readVarInt());
+
+            len = buff.readVarInt();
+            for (int x = 0; x < len; x++)
+                ret.aliases.put(buff.readResourceLocation(), buff.readResourceLocation());
+
+            len = buff.readVarInt();
+            for (int x = 0; x < len; x++)
+                ret.overrides.put(buff.readResourceLocation(), buff.readString(0x100));
+
+            len = buff.readVarInt();
+            for (int x = 0; x < len; x++)
+                ret.blocked.add(buff.readVarInt());
+
+            len = buff.readVarInt();
+            for (int x = 0; x < len; x++)
+                ret.dummied.add(buff.readResourceLocation());
 
             return ret;
         }

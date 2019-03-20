@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -119,10 +119,9 @@ public class GuiIngameForge extends GuiIngame
         fontrenderer = mc.fontRenderer;
         //mc.entityRenderer.setupOverlayRendering();
         GlStateManager.enableBlend();
-
         if (renderVignette && Minecraft.isFancyGraphicsEnabled())
         {
-            renderVignette(mc.player.getBrightness());
+            func_212303_b(mc.getRenderViewEntity());
         }
         else
         {
@@ -254,7 +253,7 @@ public class GuiIngameForge extends GuiIngame
     }
 
     @Override
-    protected void renderVignette(float lightLevel)
+    protected void func_212303_b(Entity entity)
     {
         if (pre(VIGNETTE))
         {
@@ -263,7 +262,7 @@ public class GuiIngameForge extends GuiIngame
             GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             return;
         }
-        super.renderVignette(lightLevel);
+        super.func_212303_b(entity);
         post(VIGNETTE);
     }
 

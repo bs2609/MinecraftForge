@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ public class LauncherVersion {
     private static final String launcherVersion;
 
     static {
-        String vers = JarVersionLookupHandler.getImplementationVersion(LauncherVersion.class).orElse(System.getProperty("fmllauncher.version"));
+        String vers = JarVersionLookupHandler.getImplementationVersion(LauncherVersion.class).orElse(System.getenv("LAUNCHER_VERSION"));
         if (vers == null) throw new RuntimeException("Missing FMLLauncher version, cannot continue");
         launcherVersion = vers;
         LOGGER.debug(CORE, "Found FMLLauncher version {}", launcherVersion);

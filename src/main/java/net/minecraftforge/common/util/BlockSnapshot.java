@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -63,7 +63,7 @@ public class BlockSnapshot
     public BlockSnapshot(World world, BlockPos pos, IBlockState state, @Nullable NBTTagCompound nbt)
     {
         this.setWorld(world);
-        this.dimId = world.dimension.getId();
+        this.dimId = world.dimension.getType().getId();
         this.pos = pos.toImmutable();
         this.setReplacedBlock(state);
         this.registryName = state.getBlock().getRegistryName();

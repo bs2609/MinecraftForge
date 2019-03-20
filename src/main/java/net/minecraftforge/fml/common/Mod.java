@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.ModLifecycleEvent;
-import net.minecraftforge.fml.javafmlmod.FMLModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
  * This defines a Mod to FML.
@@ -90,9 +90,9 @@ public @interface Mod
             FORGE(()-> MinecraftForge.EVENT_BUS),
             /**
              * The mod specific Event bus.
-             * @see FMLModLoadingContext#getModEventBus()
+             * @see FMLJavaModLoadingContext#getModEventBus()
              */
-            MOD(()-> FMLModLoadingContext.get().getModEventBus());
+            MOD(()-> FMLJavaModLoadingContext.get().getModEventBus());
 
             private final Supplier<IEventBus> busSupplier;
 

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,7 @@ import static net.minecraftforge.fml.loading.LogMarkers.SCAN;
 /**
  * Support loading mods located in JAR files in the mods folder
  */
-public class ModsFolderLocator extends AbstractJarFileLocator implements IModLocator {
+public class ModsFolderLocator extends AbstractJarFileLocator {
     private static final String SUFFIX = ".jar";
     private static final Logger LOGGER = LogManager.getLogger();
     private final Path modFolder;

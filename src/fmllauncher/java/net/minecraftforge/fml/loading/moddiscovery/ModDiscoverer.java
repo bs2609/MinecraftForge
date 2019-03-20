@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
+import static net.minecraftforge.fml.loading.LogMarkers.CORE;
 import static net.minecraftforge.fml.loading.LogMarkers.SCAN;
 
 
@@ -47,7 +49,7 @@ public class ModDiscoverer {
         locators = ServiceLoader.load(IModLocator.class);
         locatorList = ServiceLoaderStreamUtils.toList(this.locators);
         locatorList.forEach(l->l.initArguments(arguments));
-        LOGGER.debug(SCAN,"Found Mod Locators : {}", ()->locatorList.stream().map(iModLocator -> "("+iModLocator.name() + ":" + iModLocator.getClass().getPackage().getImplementationVersion()+")").collect(Collectors.joining(",")));
+        LOGGER.debug(CORE,"Found Mod Locators : {}", ()->locatorList.stream().map(iModLocator -> "("+iModLocator.name() + ":" + iModLocator.getClass().getPackage().getImplementationVersion()+")").collect(Collectors.joining(",")));
     }
 
     ModDiscoverer(List<IModLocator> locatorList) {
@@ -67,12 +69,14 @@ public class ModDiscoverer {
         FMLLoader.getLanguageLoadingProvider().addAdditionalLanguages(modFiles.get(ModFile.Type.LANGPROVIDER));
         BackgroundScanHandler backgroundScanHandler = new BackgroundScanHandler();
         final List<ModFile> mods = modFiles.getOrDefault(ModFile.Type.MOD, Collections.emptyList());
+        final List<ModFile> brokenFiles = new ArrayList<>();
         for (Iterator<ModFile> iterator = mods.iterator(); iterator.hasNext(); )
         {
             ModFile mod = iterator.next();
-            if (!mod.identifyMods()) {
-                LOGGER.debug(SCAN, "Removing file {} from further analysis - it is invalid", mod);
+            if (!mod.getLocator().isValid(mod) || !mod.identifyMods()) {
+                LOGGER.warn(SCAN, "File {} has been ignored - it is invalid", mod.getFilePath());
                 iterator.remove();
+                brokenFiles.add(mod);
             }
         }
         LOGGER.debug(SCAN,"Found {} mod files with {} mods", mods::size, ()->mods.stream().mapToInt(mf -> mf.getModInfos().size()).sum());
@@ -80,6 +84,7 @@ public class ModDiscoverer {
         loadingModList.addCoreMods();
         loadingModList.addAccessTransformers();
         loadingModList.addForScanning(backgroundScanHandler);
+        loadingModList.setBrokenFiles(brokenFiles);
         return backgroundScanHandler;
     }
 

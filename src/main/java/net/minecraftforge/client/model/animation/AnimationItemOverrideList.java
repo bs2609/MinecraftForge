@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,10 +22,10 @@ package net.minecraftforge.client.model.animation;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.IUnbakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ItemOverride;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.EntityLivingBase;
@@ -68,7 +68,7 @@ public final class AnimationItemOverrideList extends ItemOverrideList
     public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity)
     {
         return stack.getCapability(CapabilityAnimation.ANIMATION_CAPABILITY, null)
-            .map(asm -> 
+            .map(asm ->
             {
                 World w = world;
                 // TODO caching?

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ public class TextComponentHelper
         {
             EntityPlayerMP playerMP = (EntityPlayerMP) sender;
             NetHandlerPlayServer channel = playerMP.connection;
-            return NetworkHooks.getConnectionType(channel) == ConnectionType.VANILLA;
+            return NetworkHooks.getConnectionType(()->channel.netManager) == ConnectionType.VANILLA;
         }
         return false;
     }

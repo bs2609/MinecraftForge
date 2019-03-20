@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,7 @@ public class ModClassVisitor extends ClassVisitor
         return new ModMethodVisitor(name, desc, annotations);
     }
 
-    public void buildData(final List<ModFileScanData.ClassData> classes, final List<ModFileScanData.AnnotationData> annotations) {
+    public void buildData(final Set<ModFileScanData.ClassData> classes, final Set<ModFileScanData.AnnotationData> annotations) {
         classes.add(new ModFileScanData.ClassData(this.asmType, this.asmSuperType, this.interfaces));
         final List<ModFileScanData.AnnotationData> collect = this.annotations.stream().
                 filter(ma->ModFileScanData.interestingAnnotations().test(ma.asmType)).

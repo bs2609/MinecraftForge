@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,8 +27,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class MavenDirectoryLocator extends AbstractJarFileLocator implements IModLocator {
+public class MavenDirectoryLocator extends AbstractJarFileLocator {
     private List<Path> modCoords;
 
     @Override
@@ -54,7 +55,9 @@ public class MavenDirectoryLocator extends AbstractJarFileLocator implements IMo
         final List<String> mavenRoots = (List<String>) arguments.get("mavenRoots");
         final List<Path> mavenRootPaths = mavenRoots.stream().map(n -> FMLPaths.GAMEDIR.get().resolve(n)).collect(Collectors.toList());
         final List<String> mods = (List<String>) arguments.get("mods");
-        List<Path> localModCoords = mods.stream().map(MavenCoordinateResolver::get).collect(Collectors.toList());
+        final List<String> listedMods = ModListHandler.processModLists((List<String>) arguments.get("modLists"), mavenRootPaths);
+
+        List<Path> localModCoords = Stream.concat(mods.stream(),listedMods.stream()).map(MavenCoordinateResolver::get).collect(Collectors.toList());
         // find the modCoords path in each supplied maven path, and turn it into a mod file. (skips not found files)
 
         this.modCoords = localModCoords.stream().map(mc -> mavenRootPaths.stream().map(root -> root.resolve(mc)).filter(path -> Files.exists(path)).findFirst().orElseThrow(() -> new IllegalArgumentException("Failed to locate requested mod coordinate " + mc))).collect(Collectors.toList());

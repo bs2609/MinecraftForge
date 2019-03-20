@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ package net.minecraftforge.client.model.pipeline;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;

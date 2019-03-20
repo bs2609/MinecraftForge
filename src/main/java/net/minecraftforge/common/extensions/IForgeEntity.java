@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,8 +45,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IWorldReader;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.common.util.ITeleporter;
 
 public interface IForgeEntity extends ICapabilitySerializable<NBTTagCompound>
 {
@@ -75,6 +77,14 @@ public interface IForgeEntity extends ICapabilitySerializable<NBTTagCompound>
     Collection<EntityItem> captureDrops();
     Collection<EntityItem> captureDrops(@Nullable Collection<EntityItem> captureDrops);
 
+
+    /**
+     * Returns a NBTTagCompound that can be used to store custom data for this entity.
+     * It will be written, and read from disc, so it persists over world saves.
+     * @return A NBTTagCompound
+     */
+    NBTTagCompound getEntityData();
+
     /**
      * Used in model rendering to determine if the entity riding this entity should be in the 'sitting' position.
      * @return false to prevent an entity that is mounted to this entity from displaying the 'sitting' animation.
@@ -83,7 +93,6 @@ public interface IForgeEntity extends ICapabilitySerializable<NBTTagCompound>
     {
         return true;
     }
-
 
     /**
      * Called when a user uses the creative pick block button on this entity.
@@ -150,16 +159,27 @@ public interface IForgeEntity extends ICapabilitySerializable<NBTTagCompound>
     }
 
     /**
-     * If the rider should be dismounted from the entity when the entity goes under water
+     * Checks if this entity can continue to be ridden while it is underwater.
      *
-     * @param rider The entity that is riding
-     * @return if the entity should be dismounted when under water
+     * @param rider The entity that is riding this entity
+     * @return {@code true} if the entity can continue to ride underwater. {@code false} otherwise.
      */
-    default boolean shouldDismountInWater(Entity rider)
+    default boolean canBeRiddenInWater(Entity rider)
     {
         return this instanceof EntityLivingBase;
     }
 
+    /**
+     * Override instead of
+     * {@link Entity#changeDimension(DimensionType, ITeleporter)} if your entity
+     * needs special handling for specific teleporters.
+     * 
+     * @param type The target dimension
+     * @param teleporter The teleporter being used to move the entity to the dimension
+     * @return The entity to be placed in the target dimension. {@code null} if the entity should despawn. 
+     */
+    @Nullable
+    Entity changeDimension(DimensionType type, ITeleporter teleporter);
 
     /**
      * Checks if this {@link Entity} can trample a {@link Block}.

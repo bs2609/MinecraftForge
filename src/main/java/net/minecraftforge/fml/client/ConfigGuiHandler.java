@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,6 +33,6 @@ public class ConfigGuiHandler
     public static Optional<BiFunction<Minecraft, GuiScreen, GuiScreen>> getGuiFactoryFor(ModInfo selectedMod)
     {
         return ModList.get().getModContainerById(selectedMod.getModId()).
-                flatMap(mc -> mc.getCustomExtension(ExtensionPoint.GUIFACTORY));
+                flatMap(mc -> mc.getCustomExtension(ExtensionPoint.CONFIGGUIFACTORY));
     }
 }

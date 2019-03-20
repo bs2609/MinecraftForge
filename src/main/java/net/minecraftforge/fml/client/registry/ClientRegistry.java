@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ public class ClientRegistry
      */
     public static synchronized <T extends TileEntity> void bindTileEntitySpecialRenderer(Class<T> tileEntityClass, TileEntityRenderer<? super T> specialRenderer)
     {
-        TileEntityRendererDispatcher.instance.renderers.put(tileEntityClass, specialRenderer);
+        TileEntityRendererDispatcher.instance.setSpecialRenderer(tileEntityClass, specialRenderer);
         specialRenderer.setRendererDispatcher(TileEntityRendererDispatcher.instance);
     }
 

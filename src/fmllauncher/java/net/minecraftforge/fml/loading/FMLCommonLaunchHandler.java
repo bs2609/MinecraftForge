@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,9 +49,9 @@ public abstract class FMLCommonLaunchHandler
             // standard libs
             "joptsimple.", "org.lwjgl.", "com.mojang.guava.", "com.google.", "org.apache.commons.", "io.netty.",
             "org.apache.logging.log4j.", "org.apache.http.", "org.apache.maven.", "org.objectweb.asm.",
-            "paulscode.sound.", "com.ibm.icu.", "sun.", "gnu.trove.", "com.electronwill.nightconfig.",
+            "paulscode.sound.", "com.ibm.icu.", "sun.", "javax.", "gnu.trove.", "com.electronwill.nightconfig.",
             "net.minecraftforge.fml.loading.", "net.minecraftforge.fml.language.",
-            "net.minecraftforge.eventbus.", "net.minecraftforge.api."
+            "net.minecraftforge.eventbus.", "net.minecraftforge.api.", "com.mojang.util.QueueLogAppender"
     );
 
     protected Predicate<String> getPackagePredicate() {
@@ -68,8 +68,8 @@ public abstract class FMLCommonLaunchHandler
 
     public void configureTransformationClassLoader(final ITransformingClassLoaderBuilder builder) {
         builder.addTransformationPath(FMLLoader.getForgePath());
-        for (Path path : FMLLoader.getMCPaths())
-            builder.addTransformationPath(path);
+        Arrays.stream(FMLLoader.getMCPaths()).forEach(builder::addTransformationPath);
+        FMLLoader.getLanguageLoadingProvider().getLibraries().forEach(builder::addTransformationPath);
         builder.setClassBytesLocator(getClassLoaderLocatorFunction());
         builder.setManifestLocator(getClassLoaderManifestLocatorFunction());
     }

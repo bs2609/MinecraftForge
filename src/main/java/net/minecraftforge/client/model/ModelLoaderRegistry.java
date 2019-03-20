@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,8 +34,8 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IUnbakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;

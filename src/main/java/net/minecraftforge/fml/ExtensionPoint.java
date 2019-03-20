@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,14 +22,23 @@ package net.minecraftforge.fml;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.resources.IResourcePack;
+import net.minecraftforge.fml.network.FMLPlayMessages;
 import net.minecraftforge.fml.packs.ModFileResourcePack;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class ExtensionPoint<T>
 {
-    public static final ExtensionPoint<BiFunction<Minecraft, GuiScreen, GuiScreen>> GUIFACTORY = new ExtensionPoint<>();
+    public static final ExtensionPoint<BiFunction<Minecraft, GuiScreen, GuiScreen>> CONFIGGUIFACTORY = new ExtensionPoint<>();
     public static final ExtensionPoint<BiFunction<Minecraft, ModFileResourcePack, IResourcePack>> RESOURCEPACK = new ExtensionPoint<>();
+
+    /**
+     * Register with {@link ModLoadingContext#}
+     */
+    public static final ExtensionPoint<Function<FMLPlayMessages.OpenContainer, GuiScreen>> GUIFACTORY = new ExtensionPoint<>();
+
+
     private Class<T> type;
 
     private ExtensionPoint() {

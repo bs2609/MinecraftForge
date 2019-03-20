@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -88,7 +88,12 @@ public class ForgeI18n {
 
     public static String parseMessage(final String i18nMessage, Object... args) {
         final String pattern = getPattern(i18nMessage);
-        return parseFormat(pattern, args);
+        try {
+            return parseFormat(pattern, args);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Illegal format found {}", pattern, e);
+            return pattern;
+        }
     }
 
     public static String parseFormat(final String format, final Object... args) {

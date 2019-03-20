@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.tileentity.TileEntity;
 
 /**
- * A special case {@link TileEntityRenderer} which can be batched with other
+ * A special case {@link TileGameRenderer} which can be batched with other
  * renderers that are also instances of this class.
  * <p>
  * Advantages:
@@ -49,7 +49,7 @@ import net.minecraft.tileentity.TileEntity;
  * <li>All renderers must use the same {@link VertexFormat}
  * ({@link DefaultVertexFormats#BLOCK})</li>
  * </ul>
- * 
+ *
  * @param <T> The type of {@link TileEntity} being rendered.
  */
 public abstract class TileEntityRendererFast<T extends TileEntity> extends TileEntityRenderer<T>

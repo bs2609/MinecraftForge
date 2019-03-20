@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -101,6 +101,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameType;
 import net.minecraft.world.IBlockReader;
@@ -401,7 +402,7 @@ public class ForgeHooks
     {
         boolean isSpectator = (entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());
         if (isSpectator) return false;
-        if (!ForgeConfig.GENERAL.fullBoundingBoxLadders.get())
+        if (!ForgeConfig.SERVER.fullBoundingBoxLadders.get())
         {
             return state.getBlock().isLadder(state, world, pos, entity);
         }
@@ -749,7 +750,7 @@ public class ForgeHooks
         return stack.isEmpty() || !stack.getItem().onLeftClickEntity(stack, player, target);
     }
 
-    public static boolean onTravelToDimension(Entity entity, int dimension)
+    public static boolean onTravelToDimension(Entity entity, DimensionType dimension)
     {
         EntityTravelToDimensionEvent event = new EntityTravelToDimensionEvent(entity, dimension);
         MinecraftForge.EVENT_BUS.post(event);
@@ -1008,14 +1009,10 @@ public class ForgeHooks
                 if (enchantmentsNbt.size() == 1)
                 {
                     NBTTagCompound nbttagcompound = enchantmentsNbt.getCompound(0);
-                    Enchantment enchantment = Enchantment.getEnchantmentByID(nbttagcompound.getShort("id"));
-                    if (enchantment != null)
+                    ResourceLocation resourceLocation = ResourceLocation.makeResourceLocation(nbttagcompound.getString("id"));
+                    if (resourceLocation != null && ForgeRegistries.ENCHANTMENTS.containsKey(resourceLocation))
                     {
-                        ResourceLocation resourceLocation = ForgeRegistries.ENCHANTMENTS.getKey(enchantment);
-                        if (resourceLocation != null)
-                        {
-                            return resourceLocation.getNamespace();
-                        }
+                        return resourceLocation.getNamespace();
                     }
                 }
             }
@@ -1100,7 +1097,7 @@ public class ForgeHooks
         return event.getVanillaNoteId();
     }
 
-    public static int canEntitySpawn(EntityLiving entity, IWorld world, float x, float y, float z, MobSpawnerBaseLogic spawner) {
+    public static int canEntitySpawn(EntityLiving entity, IWorld world, double x, double y, double z, MobSpawnerBaseLogic spawner) {
         Result res = ForgeEventFactory.canEntitySpawn(entity, world, x, y, z, null);
         return res == Result.DEFAULT ? 0 : res == Result.DENY ? -1 : 1;
     }

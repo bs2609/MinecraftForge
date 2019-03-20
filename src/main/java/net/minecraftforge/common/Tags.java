@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -114,7 +114,7 @@ public class Tags
         public static final Tag<Item> MUSIC_DISCS = tag("music_discs");
         public static final Tag<Item> NUGGETS = tag("nuggets");
         public static final Tag<Item> NUGGETS_GOLD = tag("nuggets/gold");
-        public static final Tag<Item> NUGGETS_IRRON = tag("nuggets/iron");
+        public static final Tag<Item> NUGGETS_IRON = tag("nuggets/iron");
         public static final Tag<Item> ORES = tag("ores");
         public static final Tag<Item> ORES_COAL = tag("ores/coal");
         public static final Tag<Item> ORES_DIAMOND = tag("ores/diamond");

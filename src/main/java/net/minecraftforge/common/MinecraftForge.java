@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 
 package net.minecraftforge.common;
 
+import net.minecraftforge.eventbus.api.BusBuilder;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 import net.minecraft.crash.CrashReport;
@@ -42,7 +43,7 @@ public class MinecraftForge
      * ORE_GEN_BUS for ore gen events
      * EVENT_BUS for everything else
      */
-    public static final IEventBus EVENT_BUS = IEventBus.create();
+    public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
 
     static final ForgeInternalHandler INTERNAL_HANDLER = new ForgeInternalHandler();
     private static final Logger LOGGER = LogManager.getLogger();

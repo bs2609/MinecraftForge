@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -44,9 +44,11 @@ public interface IForgeRegistry<V extends IForgeRegistryEntry<V>> extends Iterab
 
     boolean containsKey(ResourceLocation key);
     boolean containsValue(V value);
+    boolean isEmpty();
 
     @Nullable V getValue(ResourceLocation key);
     @Nullable ResourceLocation getKey(V value);
+    @Nullable ResourceLocation getDefaultKey();
 
     @Nonnull Set<ResourceLocation>           getKeys();
     @Nonnull Collection<V>                   getValues();

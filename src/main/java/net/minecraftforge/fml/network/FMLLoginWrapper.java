@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,7 +41,7 @@ public class FMLLoginWrapper {
         wrapperChannel = NetworkRegistry.ChannelBuilder.named(FMLLoginWrapper.WRAPPER).
                 clientAcceptedVersions(a->true).
                 serverAcceptedVersions(a->true).
-                networkProtocolVersion(()->NetworkHooks.NETVERSION)
+                networkProtocolVersion(()-> FMLNetworkConstants.NETVERSION)
                 .eventNetworkChannel();
         wrapperChannel.addListener(this::wrapperReceived);
     }
@@ -49,7 +49,7 @@ public class FMLLoginWrapper {
     private <T extends NetworkEvent> void wrapperReceived(final T packet) {
         final NetworkEvent.Context wrappedContext = packet.getSource().get();
         final PacketBuffer payload = packet.getPayload();
-        ResourceLocation targetNetworkReceiver = FMLHandshakeHandler.FML_HANDSHAKE_RESOURCE;
+        ResourceLocation targetNetworkReceiver = FMLNetworkConstants.FML_HANDSHAKE_RESOURCE;
         PacketBuffer data = null;
         if (payload != null) {
             targetNetworkReceiver = payload.readResourceLocation();

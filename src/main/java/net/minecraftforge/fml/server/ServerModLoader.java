@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,20 +22,33 @@ package net.minecraftforge.fml.server;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.SidedProvider;
-import net.minecraftforge.fml.packs.ResourcePackLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+
+import static net.minecraftforge.fml.loading.LogMarkers.LOADING;
 
 public class ServerModLoader
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static DedicatedServer server;
     public static void begin(DedicatedServer dedicatedServer) {
         ServerModLoader.server = dedicatedServer;
         SidedProvider.setServer(()->dedicatedServer);
         LogicalSidedProvider.setServer(()->dedicatedServer);
+        LanguageHook.loadForgeAndMCLangs();
         ModLoader.get().loadMods();
     }
 
     public static void end() {
         ModLoader.get().finishMods();
+        List<ModLoadingWarning> warnings = ModLoader.get().getWarnings();
+        if (!warnings.isEmpty()) {
+            LOGGER.warn(LOADING, "Mods loaded with {} warnings", warnings.size());
+            warnings.forEach(warning -> LOGGER.warn(LOADING, warning.formatToString()));
+        }
     }
 }

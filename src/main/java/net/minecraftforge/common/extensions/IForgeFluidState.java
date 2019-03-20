@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.common.extensions;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;

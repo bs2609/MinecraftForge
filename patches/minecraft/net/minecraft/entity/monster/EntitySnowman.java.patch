@@ -6,7 +6,7 @@
  
 -public class EntitySnowman extends EntityGolem implements IRangedAttackMob {
 +public class EntitySnowman extends EntityGolem implements IRangedAttackMob, net.minecraftforge.common.IShearable {
-    private static final DataParameter<Byte> field_184749_a = EntityDataManager.<Byte>func_187226_a(EntitySnowman.class, DataSerializers.field_187191_a);
+    private static final DataParameter<Byte> field_184749_a = EntityDataManager.func_187226_a(EntitySnowman.class, DataSerializers.field_187191_a);
  
     public EntitySnowman(World p_i1692_1_) {
 @@ -85,7 +85,7 @@
@@ -27,10 +27,15 @@
           this.func_184747_a(false);
           itemstack.func_77972_a(1, p_184645_1_);
        }
-@@ -166,4 +166,10 @@
+@@ -166,4 +166,15 @@
  
     public void func_184724_a(boolean p_184724_1_) {
     }
++
++   @Override
++   public boolean isShearable(ItemStack item, net.minecraft.world.IWorldReader world, BlockPos pos) {
++      return this.func_184748_o();
++   }
 +
 +   @Override
 +   public java.util.List<ItemStack> onSheared(ItemStack item, net.minecraft.world.IWorld world, BlockPos pos, int fortune) {
