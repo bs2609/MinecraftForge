@@ -30,9 +30,9 @@
          for (Block block : p_186731_2_)
          {
 -            this.field_186732_a.func_148746_a(p_186731_1_, Item.func_150891_b(Item.func_150898_a(block)));
-+            if (block == null) throw new IllegalArgumentException("Block registered to item color handler cannot be null!");
-+            if (block.getRegistryName() == null) throw new IllegalArgumentException("Block must be registered before assigning color handler.");
-+            this.itemColorMap.put(Item.func_150898_a(block).delegate, p_186731_1_);
++            Item item = Item.func_150898_a(block);
++            if (item == Items.field_190931_a) throw new IllegalArgumentException("Block registered to item color handler must map to a valid item");
++            this.itemColorMap.put(item.delegate, p_186731_1_);
          }
      }
  
